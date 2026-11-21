@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Session menu (wofi port of the rice's rofi rice-power).
+set -u
+c=$(printf "Lock\nSuspend\nLogout\nReboot\nShutdown" | wofi --dmenu --prompt power) || exit 0
+case "$c" in
+  Lock) hyprlock;;
+  Suspend) systemctl suspend;;
+  Logout) uwsm stop;;
+  Reboot) systemctl reboot;;
+  Shutdown) systemctl poweroff;;
+esac

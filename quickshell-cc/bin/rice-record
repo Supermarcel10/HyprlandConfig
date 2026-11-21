@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Toggle screen recording (wf-recorder). No args = focused monitor,
+# --area = region picker. State (start epoch + pid) lives in ~/.cache/rice/,
+# where the bar pill reads it - same contract as the rice's Capture backend.
+set -u
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/rice"
+PIDF="$CACHE/recording.pid"; TIMEF="$CACHE/recording"; OUTF="$CACHE/recording.file"
+if [ -f "$PIDF" ] && kill -0 "$(cat "$PIDF")" 2>/dev/null; then
+  kill "$(cat "$PIDF")"; rm -f "$PIDF" "$TIMEF" "$OUTF"
+  notify-send -a rice-record "Recording saved"
+  exit 0
+fi
+# Stale pidfile but the recorder is still going (e.g. started before a crash).
+if pgrep -f "[w]f-recorder" >/dev/null 2>&1; then
+  pkill -f "[w]f-recorder"
+  rm -f "$PIDF" "$TIMEF" "$OUTF"
+  notify-send -a rice-record "Recording stopped"
+  exit 0
+fi
+rm -f "$PIDF" "$TIMEF" "$OUTF"
+mkdir -p "$CACHE" ~/Videos
+out=~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4
+if [ "${1:-}" = --area ]; then
+  sel="$(slurp)" || exit 0
+  wf-recorder -g "$sel" -f "$out" &
+else
+  mon="$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')"
+  wf-recorder -o "$mon" -f "$out" &
+fi
+echo $! > "$PIDF"
+sleep 1
+if kill -0 "$(cat "$PIDF")" 2>/dev/null; then
+  printf '%(%s)T' -1 > "$TIMEF"; printf '%s' "$out" > "$OUTF"
+  notify-send -a rice-record "Recording started"
+else
+  rm -f "$PIDF"
+fi

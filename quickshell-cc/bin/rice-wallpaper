@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Shim of the rice's rice-wallpaper: only the `mode` subcommand is supported.
+# Persists the theme mode for the Quickshell control center card at
+# ~/.cache/rice/mode. (Full wallpaper re-theming still goes through wallust.)
+set -u
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/rice"
+if [ "${1:-}" = mode ]; then
+  case "${2:-}" in
+    dark|light)
+      mkdir -p "$CACHE"; printf '%s\n' "$2" > "$CACHE/mode";;
+    toggle)
+      cur=$(cat "$CACHE/mode" 2>/dev/null || echo dark)
+      if [ "$cur" = dark ]; then want=light; else want=dark; fi
+      mkdir -p "$CACHE"; printf '%s\n' "$want" > "$CACHE/mode";;
+    "")
+      cat "$CACHE/mode" 2>/dev/null || echo dark;;
+    *)
+      echo "usage: rice-wallpaper mode [dark|light|toggle]" >&2; exit 2;;
+  esac
+  exit 0
+fi
+echo "rice-wallpaper shim: only 'mode' is implemented" >&2; exit 2

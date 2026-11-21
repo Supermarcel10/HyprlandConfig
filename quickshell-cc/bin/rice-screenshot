@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Region screenshot to clipboard (shared by the Super+S bind and the bar).
+grim -g "$(slurp)" - | wl-copy && notify-send -a rice-screenshot "Screenshot copied"

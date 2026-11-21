@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Media control scoped the same way as the bar display: SONE wins while it
+# is playing or paused, otherwise the default player gets the command.
+# Usage: rice-media play-pause|next|previous
+SONE="io.github.lullabyX.sone"
+cmd="${1:-play-pause}"
+if playerctl -p "$SONE" status >/dev/null 2>&1; then
+  case "$(playerctl -p "$SONE" status 2>/dev/null)" in
+    Playing|Paused) exec playerctl -p "$SONE" "$cmd";;
+  esac
+fi
+exec playerctl "$cmd"
