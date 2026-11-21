@@ -5,10 +5,11 @@ as they get extracted — Hyprland/Wallust/Wofi templates).
 
 Consumed as a git submodule by
 [NixOSConfig](https://github.com/supermarcel10/nixosconfig) at
-`modules/desktop_environments/hyprland/configs`.
+`modules/desktop_environments/hyprland/configs`, wired in as the
+`hyprland-configs` (`git+file`) flake input and exposed to modules as
+`paths.hyprland_configs`, e.g. `hyprland_configs + /quickshell-cc/qml`.
 The Nix wrappers (`environment.nix`, `quickshell.nix`, `icons.nix`) live in
-the parent repo and reference this tree read-only, e.g.
-`${./configs/quickshell-cc/qml}`.
+the parent repo and reference this tree read-only.
 
 ## Layout
 
